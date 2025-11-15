@@ -1,0 +1,145 @@
+Gestor de Contraseñas Seguras
+
+Objetivo: Almacenar usuarios y contraseñas, verificar su fuerza y alertar sobre contraseñas débiles.
+
+Componentes: - Vectores: usuarios, contraseñas - Condicionales y bucles: verificación de fuerza - Funciones: RegistrarUsuario, VerificarContraseña, GenerarAlertas - Tipos de datos: cadena, lógico 
+
+//====================================================================
+// ALGORITMO PRINCIPAL - GESTOR DE CONTRASEÑAS
+//====================================================================
+Proceso GestorDeContrasenas
+	Definir max_usuarios Como Entero;
+	max_usuarios <- 50; 
+	
+	Dimension usuarios[max_usuarios], contrasenas[max_usuarios];
+	
+	Definir indice_actual, opcion Como Entero;
+	indice_actual <- 1; 
+	
+	Repetir
+		Escribir "";
+		Escribir "==== GESTOR DE CONTRASEÑAS ====";
+		Escribir "1. Registrar un nuevo usuario";
+		Escribir "2. Generar alertas de contraseñas débiles";
+		Escribir "3. Mostrar todos los usuarios (Debug)";
+		Escribir "4. Salir";
+		Escribir "===============================";
+		Escribir "Elige una opción:";
+		Leer opcion;
+		
+		Segun opcion Hacer
+			1: // Registrar Usuario
+				Limpiar Pantalla;
+				RegistrarUsuario(usuarios, contrasenas, indice_actual, max_usuarios);
+			2: // Generar Alertas
+				Limpiar Pantalla;
+				GenerarAlertas(usuarios, contrasenas, indice_actual);
+			3: // Mostrar todos los usuarios
+				Limpiar Pantalla;
+				Escribir "--- USUARIOS REGISTRADOS ---";
+				Si indice_actual > 1 Entonces
+					Para i <- 1 Hasta indice_actual - 1 Hacer
+						Escribir "  - Usuario: ", usuarios[i];
+					FinPara
+				Sino
+					Escribir "  -> No hay usuarios registrados.";
+				FinSi
+				Escribir "----------------------------";
+			4: // Salir
+				Escribir "Saliendo del programa...";
+			De Otro Modo:
+				Escribir "Opción no válida. Inténtalo de nuevo.";
+		FinSegun
+		
+		Si opcion <> 4 Entonces
+			Escribir "Presiona Enter para continuar...";
+			Esperar Tecla;
+			Limpiar Pantalla;
+		FinSi
+		
+	Hasta Que opcion = 4;
+FinProceso
+
+//--------------------------------------------------------------------
+// FUNCIÓN PARA VERIFICAR LA FORTALEZA DE UNA CONTRASEÑA
+// Devuelve Verdadero si la contraseña tiene más de 8 caracteres.
+//--------------------------------------------------------------------
+Funcion es_fuerte <- VerificarContrasena(password)
+    Definir es_fuerte Como Logico;
+    
+    // Condicional: Verificación de fuerza (más de 8 caracteres)
+    Si Longitud(password) > 8 Entonces
+        es_fuerte <- Verdadero;
+    Sino
+        es_fuerte <- Falso;
+    FinSi
+FinFuncion
+
+//--------------------------------------------------------------------
+// SUBPROCESO PARA REGISTRAR UN NUEVO USUARIO
+// Modifica los vectores y el índice usando "Por Referencia".
+//--------------------------------------------------------------------
+SubProceso RegistrarUsuario(usuarios Por Referencia, contrasenas Por Referencia, indice Por Referencia, dimension_max Por Referencia)
+    Definir es_segura Como Logico;
+    
+    // Condicional: Verifica si hay espacio en los vectores
+    Si indice <= dimension_max Entonces
+        Escribir "--- Registro de Nuevo Usuario ---";
+        Escribir "Ingrese el nombre de usuario:";
+        Leer usuarios[indice];
+		Escribir "Ingrese la contraseña para " + usuarios[indice] + ":";
+        Leer contrasenas[indice];
+        
+        // Llama a la función de verificación
+        es_segura <- VerificarContrasena(contrasenas[indice]);
+        
+        // Alerta inmediata si es débil
+        Si es_segura == Falso Entonces
+            Escribir "ALERTA: La contraseña ingresada es débil (debe tener más de 8 caracteres).";
+        Sino
+            Escribir "INFO: La contraseña parece segura.";
+        FinSi
+        
+        // Avanza el índice para el próximo registro
+        indice <- indice + 1;
+        Escribir "? Usuario registrado con éxito.";
+    Sino
+        Escribir "? Base de datos llena. No se pueden registrar más usuarios.";
+    FinSi
+FinSubProceso
+
+//--------------------------------------------------------------------
+// SUBPROCESO PARA GENERAR ALERTAS DE CONTRASEÑAS DÉBILES
+// Recorre los vectores y muestra qué usuarios tienen contraseñas vulnerables.
+//--------------------------------------------------------------------
+SubProceso GenerarAlertas(usuarios Por Referencia, contrasenas Por Referencia, total_usuarios Por Referencia)
+    Definir i Como Entero;
+    Definir es_segura Como Logico;
+	Dimension contrasena[i];
+	Dimension usuario[i];
+    Definir alertas_encontradas Como Logico;
+    alertas_encontradas <- Falso;
+    
+    Escribir "--- REPORTE DE CONTRASEÑAS DÉBILES ---";
+    
+    // Bucle: Recorre todos los usuarios registrados
+    Si total_usuarios > 1 Entonces
+        Para i <- 1 Hasta total_usuarios - 1 Hacer
+            // Llama a la función para verificar cada contraseña
+            es_segura <- VerificarContrasena(contrasenas[i]);
+            
+            // Condicional: Si es falsa, muestra la alerta
+            Si es_segura == Falso Entonces
+                Escribir ">> ALERTA: El usuario " + usuarios[i] + " tiene una contraseña débil";
+                alertas_encontradas <- Verdadero;
+            FinSi
+        FinPara
+        
+        Si alertas_encontradas == Falso Entonces
+            Escribir "  -> ¡Excelente! No se encontraron contraseñas débiles.";
+        FinSi
+    Sino
+        Escribir "  -> No hay usuarios registrados para analizar.";
+    FinSi
+    Escribir "--------------------------------------";
+FinSubProceso
